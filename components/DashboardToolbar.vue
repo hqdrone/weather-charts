@@ -14,6 +14,7 @@
       label="Combine selected"
       hide-details
       class="mr-3"
+      :disabled="!localSelectedChartTypes.length"
     />
     <v-menu
       v-model="menu"
