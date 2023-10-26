@@ -29,7 +29,7 @@
 </template>
 
 <script>
-  import { ref, watch } from 'vue';
+  import { ref, toRefs, watch } from 'vue';
   import { Chart } from 'highcharts-vue';
 
   export default {
@@ -48,7 +48,8 @@
       },
     },
     setup(props) {
-      const dataRef = ref(props.data);
+      const { data } = toRefs(props);
+      const localData = ref(data.value);
       const chartTypes = ref(['line', 'bar']);
       const chartColors = ref([
         'black',
@@ -76,9 +77,9 @@
         title: {
           text: props.label,
         },
-        series: createSeries(dataRef.value),
+        series: createSeries(localData.value),
         xAxis: {
-          categories: dataRef.value[0].xAxis,
+          categories: localData.value[0].xAxis,
           labels: {
             style: {
               fontSize: '.6em',
@@ -95,7 +96,15 @@
       };
 
       watch(
-        () => dataRef.value,
+        () => data.value,
+        (newData) => {
+          localData.value = newData;
+        },
+        { deep: true }
+      );
+
+      watch(
+        () => localData.value,
         (newData) => {
           chartOptions.value.series = createSeries(newData);
           chartOptions.value.xAxis.categories = newData[0].xAxis;

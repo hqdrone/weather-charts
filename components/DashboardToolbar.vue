@@ -1,7 +1,7 @@
 <template>
   <div class="toolbar d-flex flex-wrap">
     <v-checkbox
-      v-for="chartType in chartTypes"
+      v-for="chartType in localChartTypes"
       :key="chartType.value"
       v-model="localSelectedChartTypes"
       :label="chartType.label"
@@ -14,7 +14,7 @@
       label="Combine selected"
       hide-details
       class="mr-3"
-      :disabled="!localSelectedChartTypes.length"
+      :disabled="localSelectedChartTypes.length < 2 && !localCombine"
     />
     <v-menu
       v-model="menu"
@@ -80,11 +80,17 @@
     },
     emits: ['update:combine', 'update:dates', 'update:selectedChartTypes'],
     setup(props, { emit }) {
-      const { selectedChartTypes, combine, dates, dataDates } = toRefs(props);
+      const { chartTypes, selectedChartTypes, combine, dates, dataDates } =
+        toRefs(props);
 
-      const localSelectedChartTypes = ref([...selectedChartTypes.value]);
+      const localChartTypes = [...chartTypes.value];
+
+      const localSelectedChartTypes = ref(selectedChartTypes.value);
 
       watch(localSelectedChartTypes, (payload) => {
+        if (localCombine.value && localSelectedChartTypes.value.length < 2) {
+          localCombine.value = false;
+        }
         emit('update:selectedChartTypes', payload);
       });
 
@@ -109,6 +115,7 @@
         menu,
         minDate,
         maxDate,
+        localChartTypes,
         localDates,
         localCombine,
         localSelectedChartTypes,

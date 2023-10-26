@@ -16,7 +16,7 @@
           ></dashboard-toolbar>
         </v-col>
       </v-row>
-      <v-row>
+      <v-row v-if="selectedChartTypes.length">
         <v-col
           v-for="type in combine ? ['combined'] : selectedChartTypes"
           :key="type"
