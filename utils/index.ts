@@ -1,4 +1,5 @@
 import { Ref } from 'vue';
+import { CurrentWeatherResponse } from '../types';
 
 export const getMinDate = (dates: Ref<string[]>) => {
   return dates.value.reduce((min, currentDate) =>
@@ -31,3 +32,16 @@ export const fakeAPIClient = (): Promise<void> => {
     }, 1000);
   });
 };
+
+export const toCurrentWeatherModel = (response: CurrentWeatherResponse) => ({
+  id: response.id,
+  name: response.name,
+  country: response.sys.country,
+  description: response.weather[0].description,
+  temp: response.main.temp,
+  feels_like: response.main.feels_like,
+  humidity: response.main.humidity,
+  wind_speed: response.wind.speed,
+  wind_deg: response.wind.deg,
+  icon: response.weather[0].icon,
+});

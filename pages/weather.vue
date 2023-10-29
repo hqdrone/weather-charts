@@ -6,28 +6,29 @@
         <v-col>
           <div class="weather-info">
             <h1 class="mb-6">
-              Weather in {{ weatherData.name }}, {{ weatherData.sys.country }}
+              Weather in {{ currentWeatherData.name }},
+              {{ currentWeatherData.country }}
             </h1>
             <p>
               <strong>Condition:</strong>
-              {{ weatherData.weather[0].description }}
+              {{ currentWeatherData.description }}
             </p>
             <p>
               <strong>Temperature:</strong>
-              {{ convertToCelsius(weatherData.main.temp) }}°C
+              {{ currentWeatherData.temp_celsius }}°C
             </p>
             <p>
               <strong>Feels Like:</strong>
-              {{ convertToCelsius(weatherData.main.feels_like) }}°C
+              {{ currentWeatherData.feels_like_celsius }}°C
             </p>
-            <p><strong>Humidity:</strong> {{ weatherData.main.humidity }}%</p>
+            <p><strong>Humidity:</strong> {{ currentWeatherData.humidity }}%</p>
             <p>
-              <strong>Wind:</strong> {{ weatherData.wind.speed }} m/s,
-              direction: {{ weatherData.wind.deg }}°
+              <strong>Wind:</strong> {{ currentWeatherData.wind_speed }} m/s,
+              direction: {{ currentWeatherData.wind_deg }}°
             </p>
             <p>
               <img
-                :src="`http://openweathermap.org/img/w/${weatherData.weather[0].icon}.png`"
+                :src="`http://openweathermap.org/img/w/${currentWeatherData.icon}.png`"
                 alt="Weather Icon"
               />
             </p>
@@ -41,26 +42,29 @@
 <script>
   import { ref, onMounted } from 'vue';
   import { useData } from '~/hooks/useData';
-  import { convertToCelsius } from '~/utils';
+  import { toCurrentWeatherModel } from '~/utils';
+  import CurrentWeather from '~/models/CurrentWeatherModel';
 
   export default {
     name: 'WeatherPage',
     setup() {
-      const { isDataLoading, fetchData } = useData();
-      const weatherData = ref({});
+      const { fetchData } = useData();
+      const currentWeatherData = ref({});
       const isLoaded = ref(false);
 
-      const fetchWeatherData = async () => {
-        weatherData.value = await fetchData('weather');
+      const fetchCurrentWeatherData = async () => {
+        const response = await fetchData('weather');
+        await CurrentWeather.insertOrUpdate({
+          data: toCurrentWeatherModel(response),
+        });
+        currentWeatherData.value = CurrentWeather.query().first();
         isLoaded.value = true;
       };
 
-      onMounted(fetchWeatherData);
+      onMounted(fetchCurrentWeatherData);
 
       return {
-        isDataLoading,
-        weatherData,
-        convertToCelsius,
+        currentWeatherData,
         isLoaded,
       };
     },

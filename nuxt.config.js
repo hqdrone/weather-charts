@@ -55,7 +55,10 @@ export default {
   },
 
   build: {},
+
   publicRuntimeConfig: {
     apiKey: process.env.API_KEY,
   },
+
+  store: true,
 };
